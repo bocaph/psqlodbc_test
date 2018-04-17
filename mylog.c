@@ -172,6 +172,13 @@ char *mask_log(char *log) {
 				"cipher_key_regist",
 				NULL /* Stopper */
 			};
+
+	/* return NULL for a NULL input */
+	if (log == NULL)
+	{
+		return NULL;
+	}
+	
 	char *buf = NULL, *new_buf = NULL, *dest, *brkt_open, *brkt_close;
 	size_t srclen = 0, destlen = 0;
 	int i, l_len = 0, r_len = 0;
@@ -179,7 +186,8 @@ char *mask_log(char *log) {
 	srclen = strlen(log);
 
 	/* Determine if function has to mask called. */
-	if((buf = (char *)malloc(srclen + 1)) == NULL) 
+	buf = (char *)malloc(srclen + 1);
+	if(buf == NULL) 
 	{
 		/* Can not allocate. */
 		return NULL;
@@ -190,18 +198,24 @@ char *mask_log(char *log) {
 	}
 	buf[i] = '\0';
 
-	for(i = 0; pgtde_function_name[i] != NULL; i++) 
+	for(i = 0; pgtde_function_name[i] != NULL; i++)
 	{
 		if(strstr(buf, pgtde_function_name[i]) != NULL)
-		break;
+		{
+			break;
+		}
 	}
 	free(buf);
+	buf = NULL;
 	if(pgtde_function_name[i] == NULL)
+	{
 		return log; /* Function name for masking not found */
-
+	}
 	/* Mask log */
 	destlen = ((srclen > strlen(MASK)) ? srclen : strlen(MASK)) + 1;
-	if((buf = (char *)malloc(destlen)) == NULL) {
+	buf = (char *)malloc(destlen);
+	if(buf == NULL)
+	{
 		/* Can not allocate. */
 		return NULL;
 	}
@@ -224,23 +238,29 @@ char *mask_log(char *log) {
 
 	brkt_close = strrchr(log, (int)')');
 	if(brkt_close)
+	{
 		r_len = srclen - (brkt_close - log);
-
+	}
 	if(destlen < l_len + r_len + strlen(MASK) + 1) 
 	{
 		destlen = l_len + r_len + strlen(MASK) + 1;
-		if((new_buf = (char *)realloc(buf, destlen)) == NULL) {
+		new_buf = (char *)realloc(buf, destlen);
+		if(new_buf == NULL)
+		{
 			/* Can not allocate. */
 			free(buf);
+			buf = NULL;
 			return NULL;
 		}
-		if(new_buf != buf) {
+		if(new_buf != buf)
+		{
 			buf = new_buf;
 			dest = new_buf + l_len;
 		}
 	}
 
-	if(brkt_close && brkt_close == brkt_open + 1) {
+	if(brkt_close && (brkt_close == brkt_open + 1))
+	{
 		/* () pattern */
 		strncpy(dest, brkt_close, r_len);
 		dest += r_len;
@@ -250,7 +270,8 @@ char *mask_log(char *log) {
 	strncpy(dest, MASK, strlen(MASK));
 	dest += strlen(MASK);
 
-	if((!brkt_close) || (brkt_close < brkt_open)) {
+	if((!brkt_close) || (brkt_close < brkt_open))
+	{
 		/* ')' not found after first '(' */
 		goto end_logmask;
 	}
@@ -258,9 +279,9 @@ char *mask_log(char *log) {
 	strncpy(dest, brkt_close, r_len);
 	dest += r_len;
 
-	end_logmask:
-		*dest = '\0';
-		return buf;
+end_logmask:
+	*dest = '\0';
+	return buf;
 }
 
 void
@@ -384,10 +405,15 @@ mylog(const char *fmt,...)
 		else
 		{
 			tmp_size = vsnprintf(tmp_ext, TDE_MSG_DEF_SIZE, fmt, args);
-			if (tmp_size > TDE_MSG_DEF_SIZE)
+			if (tmp_size >= TDE_MSG_DEF_SIZE)
 			{
 				tmp_ext = (char *)malloc(tmp_size*sizeof(char)+1);
-				vsprintf(tmp_ext,fmt, args);
+				if (tmp_ext)
+				{
+					va_start(args, fmt);
+					vsprintf(tmp_ext,fmt, args);
+					va_end(args);
+				}
 			}
 				
 			ret  = mask_log(tmp_ext);
@@ -404,13 +430,14 @@ mylog(const char *fmt,...)
 			{
 				fputs (ret,MLOGFP);
 				free(ret);
+				ret = NULL;
 			}
 
-		        if (tmp_ext != tmp)
-                        {
-                                 free(tmp_ext);
-                        }
-
+			if ((tmp_ext != tmp) && tmp_ext)
+			{
+				free(tmp_ext);
+				tmp_ext = NULL;
+			}
 		
 		}
 		
@@ -443,10 +470,10 @@ qlog(char *fmt,...)
 	va_list		args;
 	char		filebuf[80];
 	int		gerrno;
-        int             tmp_size;
-        char            tmp[TDE_MSG_DEF_SIZE];
-        char            *tmp_ext = tmp;
-        char            *ret;
+	int		tmp_size;
+	char		tmp[TDE_MSG_DEF_SIZE];
+	char		*tmp_ext = tmp;
+	char		*ret;
 
 	if (!qlog_on)	return;
 
@@ -460,60 +487,66 @@ qlog(char *fmt,...)
 
 	if (!QLOGFP)
 	{
-		generate_filename(logdir ? logdir : QLOGDIR, QLOGFILE, filebuf, sizeof(filebuf));
-		QLOGFP = fopen(filebuf, PG_BINARY_A);
-		if (!QLOGFP)
-		{
-			generate_homefile(QLOGFILE, filebuf, sizeof(filebuf));
+			generate_filename(logdir ? logdir : QLOGDIR, QLOGFILE, filebuf, sizeof(filebuf));
 			QLOGFP = fopen(filebuf, PG_BINARY_A);
+			if (!QLOGFP)
+			{
+				generate_homefile(QLOGFILE, filebuf, sizeof(filebuf));
+				QLOGFP = fopen(filebuf, PG_BINARY_A);
+			}
+			if (QLOGFP)
+				setbuf(QLOGFP, NULL);
+			else
+				qlog_on = 0;
 		}
-		if (QLOGFP)
-			setbuf(QLOGFP, NULL);
-		else
-			qlog_on = 0;
-	}
 
-	if (QLOGFP)
-	{
+		if (QLOGFP)
+		{
 #ifdef	LOGGING_PROCESS_TIME
 		DWORD	proc_time = timeGetTime() - start_time;
 		fprintf(QLOGFP, "[%d.%03d]", proc_time / 1000, proc_time % 1000);
 #endif /* LOGGING_PROCESS_TIME */
+		
 		if (!isLogMasked)
-                {
-                        vfprintf(QLOGFP, fmt, args);
-                }
-                else
-                {
-                        tmp_size = vsnprintf(tmp_ext, TDE_MSG_DEF_SIZE, fmt, args);
-                        if (tmp_size > TDE_MSG_DEF_SIZE)
-                        {
-                                tmp_ext = (char *)malloc(tmp_size*sizeof(char)+1);
-                                vsprintf(tmp_ext,fmt, args);
-                        }
+		{
+			vfprintf(QLOGFP, fmt, args);
+		}
+		else
+		{
+			tmp_size = vsnprintf(tmp_ext, TDE_MSG_DEF_SIZE, fmt, args);
+			if (tmp_size >= TDE_MSG_DEF_SIZE)
+			{
+				tmp_ext = (char *)malloc(tmp_size*sizeof(char)+1);
+				if (tmp_ext)
+					{
+						va_start(args, fmt);
+						vsprintf(tmp_ext,fmt, args);
+						va_end(args);
+					}
+			}
 
-                        ret  = mask_log(tmp_ext);
+			ret = mask_log(tmp_ext);
+			if (ret == tmp_ext)
+			{
+				fputs(ret,QLOGFP);
+			}
+			else if (ret == NULL)
+			{
+				fputs("Could not allocate memory for log masking.",QLOGFP);
+			}
+			else
+			{
+				fputs (ret,QLOGFP);
+				free(ret);
+				ret = NULL;
+			}
 
-                        if (ret == tmp_ext)
-                        {
-                                fputs(ret,QLOGFP);
-                        }
-                        else if (ret == NULL)
-                        {
-                                fputs("Could not allocate memory for log masking.",QLOGFP);
-                        }
-                        else
-                        {
-                                fputs (ret,QLOGFP);
-                                free(ret);
-                        }
-
-                        if (tmp_ext != tmp)
-                        {
-                                 free(tmp_ext);
-                        }
-
-                }
+			if ((tmp_ext != tmp) && tmp_ext)
+			{
+				free(tmp_ext);
+				tmp_ext = NULL;
+			}
+		}
 	}
 
 	va_end(args);

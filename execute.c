@@ -898,12 +898,18 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 	apdopts = SC_get_APDF(stmt);
 	ipdopts = SC_get_IPDF(stmt);
 
-	/* check and set TDEforPG data type to the plain one. */	
- 	for (i=0; i< ipdopts->allocated; i++)
-        {
-		ipdopts->parameters[i].PGType = tdeforpgtype_to_pgtype(__FUNCTION__,ipdopts->parameters[i].PGType);
-        }
-
+	/* check and set TDEforPG data type to the plain one. */
+	if(conn->isTDEforPG)
+	{
+		for (i=0; i< ipdopts->allocated; i++)
+		{
+			if (ipdopts->parameters[i].PGType == PG_TYPE_ENCRYPT_BYTEA)
+			{
+				apdopts->parameters[i].isENCRYPT_BYTEA = TRUE;
+			}
+			ipdopts->parameters[i].PGType = tdeforpgtype_to_pgtype(__FUNCTION__,ipdopts->parameters[i].PGType);
+		}
+	}
 	/*
 	 * If the statement was previously described, just recycle the old result
 	 * set that contained just the column information.

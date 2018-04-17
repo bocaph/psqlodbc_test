@@ -216,7 +216,6 @@ function buildInstaller($CPUTYPE)
 		}
 
 		Write-Host ".`nModifying psqlODBC installer database..."
-		cscript modify_msi.vbs $CPUTYPE\psqlodbc_$CPUTYPE.msi
 		cscript modify_msi.vbs $CPUTYPE\tdeforpg_psqlodbc_${VERSION}_$CPUTYPE.msi
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to modify installer database"

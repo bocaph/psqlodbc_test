@@ -2402,7 +2402,7 @@ cleanup:
  * Connect to PostgreSQL and get oid of TDEforPG from pg_type catalog,
  * and mapping with PG_TYPE_ENCRYPT_* variable which are defined in pgtypes.h 
  *
- * 	Input: nothing
+ * 	Input: ConnectionClass
  * 	Return: void
  * */
 static void
@@ -2410,17 +2410,19 @@ CC_lookup_and_set_encrypt_type(ConnectionClass *self)
 {
 	QResultClass	*res;
 	const char *typename;
-	OID	basetype;
+	OID	typeoid;
 	int i;
 	CSTR func = "CC_lookup_and_set_encrypt_type";
 
 	mylog("%s: entering...\n", func);
 
-	res = CC_send_query(self, "SELECT typname, oid FROM pg_type WHERE typname in ('encrypt_text','encrypt_bytea','encrypt_numeric','encrypt_timestamp')",
+	 /* When add new TDEforPG datatype, must be change this query to select all TDEforPG datatype's OIDs,
+	  * also need to define new PG_TYPE_ENCRYPT_XXX variable to store that OID. */
+	res = CC_send_query(self, "SELECT typname, oid FROM pg_type WHERE typname IN ('encrypt_text','encrypt_bytea','encrypt_numeric','encrypt_timestamp')",
 		NULL, IGNORE_ABORT_ON_CONN | ROLLBACK_ON_ERROR, NULL);
 	if (QR_command_maybe_successful(res) && QR_get_num_cached_tuples(res) > 0)
 	{
-		mylog("found TDE datatype in database.\n");
+		mylog("%s: found TDE datatype in database.\n",func);
 
 		self->isTDEforPG = TRUE;
 		isLogMasked = TRUE;
@@ -2428,31 +2430,31 @@ CC_lookup_and_set_encrypt_type(ConnectionClass *self)
 		for ( i=0; i<QR_get_num_total_tuples(res); i++)
 		{
 			typename = QR_get_value_backend_text(res, i, 0);
-			basetype = QR_get_value_backend_int(res, i, 1, NULL);
+			typeoid = QR_get_value_backend_int(res, i, 1, NULL);
 			
 			if (strcmp(typename,"encrypt_text")==0)
 			{
-				PG_TYPE_ENCRYPT_TEXT = basetype;
-				mylog("set TDE datatype: PG_TYPE_ENCRYPT_TEXT: %d.\n",PG_TYPE_ENCRYPT_TEXT);
+				PG_TYPE_ENCRYPT_TEXT = typeoid;
+				mylog("%s: set TDE datatype: PG_TYPE_ENCRYPT_TEXT: %d.\n",func,PG_TYPE_ENCRYPT_TEXT);
 			}
 			else if (strcmp(typename,"encrypt_bytea")==0)
 			{
-				PG_TYPE_ENCRYPT_BYTEA = basetype;
-				mylog("set TDE datatype: PG_TYPE_ENCRYPT_BYTEA: %d.\n",PG_TYPE_ENCRYPT_BYTEA);
+				PG_TYPE_ENCRYPT_BYTEA = typeoid;
+				mylog("%s: set TDE datatype: PG_TYPE_ENCRYPT_BYTEA: %d.\n",func,PG_TYPE_ENCRYPT_BYTEA);
 			}
 			else if (strcmp(typename,"encrypt_numeric")==0)
 			{
-				PG_TYPE_ENCRYPT_NUMERIC = basetype;
-				mylog("set TDE datatype: PG_TYPE_ENCRYPT_NUMERIC: %d.\n",PG_TYPE_ENCRYPT_NUMERIC);
+				PG_TYPE_ENCRYPT_NUMERIC = typeoid;
+				mylog("%s: set TDE datatype: PG_TYPE_ENCRYPT_NUMERIC: %d.\n",func,PG_TYPE_ENCRYPT_NUMERIC);
 			}
 			else if (strcmp(typename,"encrypt_timestamp")==0)
 			{
-				PG_TYPE_ENCRYPT_TIMESTAMP = basetype;
-				mylog("set TDE datatype: PG_TYPE_ENCRYPT_TIMESTAMP: %d.\n",PG_TYPE_ENCRYPT_TIMESTAMP);
+				PG_TYPE_ENCRYPT_TIMESTAMP = typeoid;
+				mylog("%s: set TDE datatype: PG_TYPE_ENCRYPT_TIMESTAMP: %d.\n",func,PG_TYPE_ENCRYPT_TIMESTAMP);
 			}
 			else
 			{
-				mylog("INTERNAL ERROR.\n");
+				mylog("%s: Not valid TDEforPG's datatype: %s, OID: %d.\n",func,typename,typeoid);
 			}
 		}
 	}

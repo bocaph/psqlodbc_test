@@ -3787,16 +3787,7 @@ inolog("num_p=%d\n", num_p);
 			if (isbinary)
 				mylog("%dth parameter is of binary format\n", pno);
 
-			if (conn->isTDEforPG)
-			{
-				mylog("TDEforPG does not support binary transfer. Setting all to text transfer.\n");
-				(*paramFormats)[pno] = 0;
-			}
-			else
-			{
-				(*paramFormats)[pno] = isbinary ? 1 : 0;
-			}
-
+			(*paramFormats)[pno] = isbinary ? 1 : 0;
 			pno++;
 		}
 		*nParams = pno;
@@ -4074,6 +4065,8 @@ ResolveOneParam(QueryBuild *qb, QueryParse *qp, BOOL *isnull, BOOL *isbinary,
 	BOOL		final_binary_convert = FALSE;
 	RETCODE		retval = SQL_ERROR;
 
+	/* is appended charaters for encrypt_bytea data or not */
+	BOOL		isBinaryAppended = FALSE;
 	*isnull = FALSE;
 	*isbinary = FALSE;
 	*pgType = 0;
@@ -4761,8 +4754,34 @@ mylog("cvt_null_date_string=%d pgtype=%d send_buf=%p\n", conn->connInfo.cvt_null
 			{
 				if (0 != (qb->flags & FLGB_BINARY_AS_POSSIBLE))
 				{
-					mylog("sending binary data leng=%d\n", used);
-					*isbinary = TRUE;
+					/* Do not set binary transfer for ENCRYPT_BYTEA, but BYTEA.
+					 * We check ENCRYPT_BYTEA or BYTEA base on the following logic of driver.
+					 * 
+					 * After bind parameters and execute in the first time, ipara->PGType is 
+					 * initialized to 0.
+					 * In the next bind && execute, psqlODBC will set ipara->PGType to datatype's 
+					 * oid get from PostgreSQL.
+					 *  
+					 * When replace PGType from ENCRYPT_BYTEA to BYTEA in executec.c:PGAPI_Execute,
+					 * if found ENCRYPT_BYTEA we set apara->isENCRYPT_BYTEA to TRUE.
+					 * 
+					 * Here, when PGType != 0 (mean not first time of bind && execute), and not 
+					 * apara->ENCRYPT_BYTEA (it means BYTEA), we allow binary transfer.
+					 *
+					 */
+					if(!conn->isTDEforPG || ((ipara->PGType !=0) && !apara->isENCRYPT_BYTEA))
+					{
+						mylog("sending binary data leng=%d\n", used);
+						*isbinary = TRUE;
+					}
+					else
+					{
+						/* If not we manually convert to binary data and send to backend. */
+						CVT_APPEND_BINARY(qb, send_buf, used);
+						mylog("%s: executed CVT_APPEND_BINARY due to TDEforPG\n",func);
+						final_binary_convert = FALSE;
+						isBinaryAppended = TRUE;
+					}
 				}
 				else
 				{
@@ -4924,9 +4943,9 @@ mylog("cvt_null_date_string=%d pgtype=%d send_buf=%p\n", conn->connInfo.cvt_null
 	 *
 	 * In bind-mode, we don't need to do any quoting.
 	 */
-	if (req_bind)
+	if (req_bind && !isBinaryAppended)
 		CVT_APPEND_DATA(qb, send_buf, used);
-	else
+	else if(!isBinaryAppended)
 	{
 		if (add_parens)
 			CVT_APPEND_CHAR(qb, '(');

@@ -52,4 +52,48 @@ TESTBINS = exe/connect-test \
 	exe/large-object-test \
 	exe/large-object-data-at-exec-test \
 	exe/odbc-escapes-test \
-	exe/wchar-char-test
+	exe/wchar-char-test \
+	exe/encrypt_bytea-dataatexecution-test \
+	exe/encrypt_bytea-cursors-test \
+	exe/encrypt_bytea-params-test \
+	exe/encrypt_bytea-prepare-test \
+	exe/encrypt_bytea_basic-test \
+	exe/encrypt_bytea_null-test \
+	exe/encrypt_bytea_toast-test \
+	exe/encrypt_numeric-cursors-test \
+	exe/encrypt_numeric_basic-test \
+	exe/encrypt_numeric_null-test \
+	exe/encrypt_numeric_reg-test \
+	exe/encrypt_text-cursors-test \
+	exe/encrypt_text_basic-test \
+	exe/encrypt_text_null-test \
+	exe/encrypt_text_toast-test \
+	exe/encrypt_timestamp-cursors-test \
+	exe/encrypt_timestamp_basic-test \
+	exe/encrypt_timestamp_null-test \
+	exe/encrypt-cursor-movement-test \
+	exe/encrypt-cursor-commit-test \
+	exe/encrypt_UniqueIndex-test \
+	exe/encrypt_UseDeclareFetch-test \
+	exe/encrypt_UnknownSizes-test \
+	exe/encrypt_TextAsLongVarchar-test \
+	exe/encrypt_UnknownsAsLongVarchar-test \
+	exe/encrypt_BoolsAsChar-test \
+	exe/encrypt_MaxVarcharSize-test \
+	exe/encrypt_MaxLongVarcharSize-test \
+	exe/encrypt_Fetch-test \
+	exe/encrypt_RowVersioning-test \
+	exe/encrypt_ShowSystemTables-test \
+	exe/encrypt_LFConversion-test \
+	exe/encrypt_TrueIsMinus1-test \
+	exe/encrypt_UpdatableCursors-test \
+	exe/encrypt_UseServerSidePrepare-test \
+	exe/encrypt_ByteaAsLongVarBinary-test \
+	exe/encrypt_BI-test \
+	exe/encrypt_Protocol-test \
+	exe/encrypt_ShowOidColumn-test \
+	exe/encrypt_FakeOidIndex-test \
+	exe/encrypt_AB-test \
+	exe/encrypt_bytea_error-test \
+	exe/encrypt_numeric_error-test \
+	exe/encrypt_timestamp_error-test

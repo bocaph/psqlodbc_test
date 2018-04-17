@@ -2103,50 +2103,47 @@ ctype_length(SQLSMALLINT ctype)
 	}
 }
 
-/* Mapping internal OID of TDEforPG data type to equipvalent plain 
- * data type' OID.
+/* 
+ * Replace TDEforPG datatype's OID to equivalent built in datatype's OID.
  * 
  * Input:
- * 	1: using function name
+ * 	1: caller function name
  * 	2: OID need to check to map
  *
  * Return:
- * 	Equipvalent plain data type's OID if input OID is TDEforPG 
- * 	data type. And return the input if TDEforPG data type.
+ * 	equivalent built in datatype's OID.
  */
 OID tdeforpgtype_to_pgtype(const char *func, OID pgtype){
 
-	OID pg_type = pgtype;
+	OID ret = pgtype;
 	
-	/* set OID of TDEforPG data type to match with the plain one*/
-	if (pg_type == PG_TYPE_ENCRYPT_TEXT)
+	if ((PG_TYPE_ENCRYPT_TEXT !=0) && (PG_TYPE_ENCRYPT_TEXT == ret))
 	{
-		pg_type = PG_TYPE_TEXT;
-		mylog("%s: set PG_TYPE_ENCRYPT_TEXT to PG_TYPE_TEXT\n",func);
+		ret = PG_TYPE_TEXT;
+		mylog("%s: replaced PG_TYPE_ENCRYPT_TEXT to PG_TYPE_TEXT\n",func);
 	}
-	else if (pg_type == PG_TYPE_ENCRYPT_BYTEA)
+	else if ((PG_TYPE_ENCRYPT_BYTEA !=0) && (PG_TYPE_ENCRYPT_BYTEA == ret))
 	{
-		pg_type = PG_TYPE_BYTEA;
-		mylog("%s: set PG_TYPE_ENCRYPT_BYTEA to PG_TYPE_BYTEA\n",func);
+		ret = PG_TYPE_BYTEA;
+		mylog("%s: replaced PG_TYPE_ENCRYPT_BYTEA to PG_TYPE_BYTEA\n",func);
 
 	}
-	else if (pg_type == PG_TYPE_ENCRYPT_NUMERIC)
+	else if ((PG_TYPE_ENCRYPT_NUMERIC !=0) && (PG_TYPE_ENCRYPT_NUMERIC == ret))
 	{
-		pg_type = PG_TYPE_NUMERIC;
-		mylog("%s: set PG_TYPE_ENCRYPT_NUMERIC to PG_TYPE_NUMERIC\n",func);
+		ret = PG_TYPE_NUMERIC;
+		mylog("%s: replaced PG_TYPE_ENCRYPT_NUMERIC to PG_TYPE_NUMERIC\n",func);
 
 	}
-	else if (pg_type == PG_TYPE_ENCRYPT_TIMESTAMP)
+	else if ((PG_TYPE_ENCRYPT_TIMESTAMP !=0) && (PG_TYPE_ENCRYPT_TIMESTAMP == ret))
 	{
-		pg_type = PG_TYPE_TIMESTAMP;
-		mylog("%s: set PG_TYPE_ENCRYPT_TIMESTAMP to PG_TYPE_TIMESTAMP\n",func);
+		ret = PG_TYPE_TIMESTAMP;
+		mylog("%s: replaced PG_TYPE_ENCRYPT_TIMESTAMP to PG_TYPE_TIMESTAMP\n",func);
 	}
 	else
 	{
 		mylog("%s: not TDEforPG data type\n",func);
 	}
-
 	
-	return pg_type;
+	return ret;
 }
 

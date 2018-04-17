@@ -388,12 +388,12 @@ BEGIN
         BLOCK "041104e4"
         BEGIN
 #ifdef UNICODE_SUPPORT
-            VALUE "Comments", "PostgreSQL Unicode ODBC driver Japanese\0"
+            VALUE "Comments", "TDEforPG supported PostgreSQL Unicode ODBC driver Japanese V1.1.2\0"
 #else
-            VALUE "Comments", "PostgreSQL ANSI ODBC driver Japanese\0"
+            VALUE "Comments", "TDEforPG supported PostgreSQL ANSI ODBC driver Japanese V1.1.2\0"
 #endif
-            VALUE "CompanyName", "PostgreSQL Global Development Group\0"
-            VALUE "FileDescription", "PostgreSQL ODBC Driver (Japanese)\0"
+            VALUE "CompanyName", "NEC Corporation\0"
+            VALUE "FileDescription", "TDEforPG supported PostgreSQL ODBC Driver (Japanese) V1.1.2\0"
             VALUE "FileVersion", POSTGRES_RESOURCE_VERSION
 #ifdef UNICODE_SUPPORT
             VALUE "InternalName", "psqlodbc35w\0"
@@ -407,7 +407,7 @@ BEGIN
 #else
             VALUE "OriginalFilename", "psqlodbc30a.dll\0"
 #endif
-            VALUE "PrivateBuild", "for Japanese by Hiroshi Inoue & Hiroshi Saito\0"
+            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "PostgreSQL\0"
             VALUE "ProductVersion", POSTGRES_RESOURCE_VERSION
             VALUE "SpecialBuild", "\0"
@@ -811,12 +811,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
 #ifdef UNICODE_SUPPORT
-            VALUE "Comments", "PostgreSQL Unicode ODBC driver\0"
+            VALUE "Comments", "TDEforPG supported PostgreSQL Unicode ODBC driver V1.1.2\0"
 #else
-            VALUE "Comments", "PostgreSQL ANSI ODBC driver\0"
+            VALUE "Comments", "TDEforPG supported PostgreSQL ANSI ODBC driver V1.1.2\0"
 #endif
-            VALUE "CompanyName", "PostgreSQL Global Development Group\0"
-            VALUE "FileDescription", "PostgreSQL ODBC Driver (English)\0"
+            VALUE "CompanyName", "NEC Corporation\0"
+            VALUE "FileDescription", "TDEforPG supported PostgreSQL ODBC Driver (English) V1.1.2\0"
             VALUE "FileVersion", POSTGRES_RESOURCE_VERSION
 #ifdef UNICODE_SUPPORT
             VALUE "InternalName", "psqlodbc35w\0"

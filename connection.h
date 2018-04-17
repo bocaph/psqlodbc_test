@@ -468,7 +468,6 @@ enum {
 #define	NO_TRANS		1L
 #define	CONN_DEAD		(1L << 1) /* connection is no longer valid */
 
-
 /*
  *	internal savepoint related
  */

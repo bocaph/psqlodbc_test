@@ -3,6 +3,11 @@
 -- Note that the reset-db program that reads this file is dumb and reads
 -- it one line at a time. Hence each statement must be on a single line.
 
+SELECT cipher_key_disable_log();
+SELECT cipher_key_regist('','aofiafoaeiaofijabeoptuiotaoi','aes',null);
+SELECT pgtde_begin_session('aofiafoaeiaofijabeoptuiotaoi');
+SELECT cipher_key_enable_log();
+
 CREATE TABLE testtab1 (id integer PRIMARY KEY, t varchar(20));
 INSERT INTO testtab1 VALUES (1, 'foo');
 INSERT INTO testtab1 VALUES (2, 'bar');
@@ -19,6 +24,13 @@ INSERT INTO byteatab VALUES (2, 'bar');
 INSERT INTO byteatab VALUES (3, 'foobar');
 INSERT INTO byteatab VALUES (4, 'foo');
 INSERT INTO byteatab VALUES (5, 'barf');
+
+CREATE TABLE enc_byteatab (id integer, t encrypt_bytea);
+INSERT INTO enc_byteatab VALUES (1, E'\\001\\002\\003\\004\\005\\006\\007\\010'::bytea);
+INSERT INTO enc_byteatab VALUES (2, 'bar');
+INSERT INTO enc_byteatab VALUES (3, 'foobar');
+INSERT INTO enc_byteatab VALUES (4, 'foo');
+INSERT INTO enc_byteatab VALUES (5, 'barf');
 
 CREATE TABLE intervaltable(id integer, iv interval, d varchar(100));
 INSERT INTO intervaltable VALUES (1, '1 day', 'one day');

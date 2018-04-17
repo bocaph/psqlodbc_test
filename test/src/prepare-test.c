@@ -98,8 +98,9 @@ int main(int argc, char **argv)
 	 * 4097 bytes. So, exercise packet sizes near that boundary.
 	 */
 
+	 //
 	rc = SQLExecDirect(hstmt,
-					   (SQLCHAR *) "CREATE TEMPORARY TABLE btest (len int4, b bytea)",
+					   (SQLCHAR *) "CREATE  TABLE btest (len int4, b bytea)",
 					   SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 

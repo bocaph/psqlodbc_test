@@ -573,6 +573,7 @@ reset_a_parameter_binding(APDFields *self, int ipar)
 	self->parameters[ipar].data_at_exec = FALSE;
 	self->parameters[ipar].precision = 0;
 	self->parameters[ipar].scale = 0;
+	self->parameters[ipar].isENCRYPT_BYTEA = FALSE;
 }
 
 void

@@ -13,6 +13,21 @@
 #define snprintf _snprintf
 #endif
 
+/* using in TDEforPG test function */
+
+#define ENCRYPT_BYTEA_TEST 0
+#define ENCRYPT_TEXT_TEST 1
+#define ENCRYPT_NUMERIC_TEST 2
+#define ENCRYPT_TIMESTAMP_TEST 3
+
+/* kind of data test */
+#define BASIC_DATA 0
+#define NULL_DATA 1
+#define TOAST_DATA 2
+
+/***********************************/
+
+
 extern SQLHENV env;
 extern SQLHDBC conn;
 
@@ -47,3 +62,6 @@ extern void print_result_meta(HSTMT hstmt);
 extern void print_result(HSTMT hstmt);
 extern const char *datatype_str(SQLSMALLINT datatype);
 extern const char *nullable_str(SQLSMALLINT nullable);
+void tdeforpg_crud(SQLSMALLINT datatype_patern, SQLSMALLINT data_kind);
+void pgtde_begin_session(HSTMT hstmt);
+void test_execute_sql_and_print(SQLCHAR* sql);
